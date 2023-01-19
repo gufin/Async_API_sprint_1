@@ -3,14 +3,25 @@ from logging import config as logging_config
 
 from core.logger import LOGGING
 
+from dotenv import load_dotenv
+from pydantic import BaseSettings, Field, PostgresDsn
 logging_config.dictConfig(LOGGING)
 
-PROJECT_NAME = os.getenv('PROJECT_NAME', 'movies')
+class AppSettings(BaseSettings):
+    PROJECT_NAME = Field('movies', env='PROJECT_NAME')
 
-REDIS_HOST = os.getenv('REDIS_HOST', '127.0.0.1')
-REDIS_PORT = int(os.getenv('REDIS_PORT', 6379))
+    REDIS_HOST = Field('127.0.0.1', env='REDIS_HOST')
+    REDIS_PORT = int(Field(6379, env='REDIS_PORT'))
 
-ELASTIC_HOST = os.getenv('ELASTIC_HOST', '127.0.0.1')
-ELASTIC_PORT = int(os.getenv('ELASTIC_PORT', 9200))
+    ELASTIC_HOST = Field('127.0.0.1', env='ELASTIC_HOST')
+    ELASTIC_PORT = int(Field(9200, env='ELASTIC_PORT'))
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    base_dir: str = Field(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        env='BASE_DIR')
+    FILM_CACHE_EXPIRE_IN_SECONDS = 300
+
+    class Config:
+        env_file = '.env'
+
+app_settings = AppSettings()

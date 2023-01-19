@@ -7,9 +7,7 @@ from fastapi import Depends
 
 from db.elastic import get_elastic
 from db.redis import get_redis
-from models.models import PersonFilms, PersonBase
-
-FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5  # 5 минут
+from models.models import PersonBase, PersonFilms
 
 
 class PersonService:
@@ -23,7 +21,7 @@ class PersonService:
             persons = await self._get_list_from_elastic(**kwargs)
             if not persons:
                 return []
-            #await self._put_list_to_cahe(persons)
+            # await self._put_list_to_cahe(persons)
         return persons
 
     async def _get_list_from_elastic(self, **kwargs):
@@ -63,7 +61,6 @@ class PersonService:
                                                  'sort': sort,
                                              })
         except NotFoundError:
-            # logger.debug('An error occurred while trying to get films in ES)')
             return None
         return [PersonBase.parse_obj(doc['_source']) for doc in
                 docs['hits']['hits']]

@@ -5,11 +5,10 @@ from aioredis import Redis
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
 
+from core.config import app_settings
 from db.elastic import get_elastic
 from db.redis import get_redis
 from models.models import FilmWork
-
-FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5  # 5 минут
 
 
 class FilmService:
@@ -23,7 +22,7 @@ class FilmService:
             films = await self._get_list_from_elastic(**kwargs)
             if not films:
                 return []
-            #await self._put_list_to_cahe(films)
+            # await self._put_list_to_cahe(films)
         return films
 
     async def _get_list_from_elastic(self, **kwargs):
@@ -63,7 +62,6 @@ class FilmService:
                                                  'sort': sort,
                                              })
         except NotFoundError:
-            # logger.debug('An error occurred while trying to get films in ES)')
             return None
         return [FilmWork.parse_obj(doc['_source']) for doc in
                 docs['hits']['hits']]
@@ -86,15 +84,10 @@ class FilmService:
         return FilmWork.parse_obj(doc['_source'])
 
     async def _film_from_cache(self, film_id: str) -> Optional[FilmWork]:
-        data = await self.redis.get(film_id)
-        if not data:
-            return None
-        #film = FilmWork.parse_raw(data)
-        return None
+        pass
 
     async def _put_film_to_cache(self, film: FilmWork):
-        await self.redis.set(str(film.uuid), film.json(),
-                             expire=FILM_CACHE_EXPIRE_IN_SECONDS)
+        pass
 
     async def _list_from_cache(self, **kwargs):
         pass

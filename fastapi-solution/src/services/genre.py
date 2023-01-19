@@ -5,11 +5,10 @@ from aioredis import Redis
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
 
+from core.config import app_settings
 from db.elastic import get_elastic
 from db.redis import get_redis
 from models.models import GenreBase
-
-FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5  # 5 минут
 
 
 class GenreService:
@@ -63,7 +62,6 @@ class GenreService:
                                                  'sort': sort,
                                              })
         except NotFoundError:
-            # logger.debug('An error occurred while trying to get films in ES)')
             return None
         return [GenreBase.parse_obj(doc['_source']) for doc in
                 docs['hits']['hits']]

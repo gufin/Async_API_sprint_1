@@ -4,8 +4,8 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 
-from services.person import PersonService, get_person_service
 from models.models import UUIDMixin
+from services.person import get_person_service, PersonService
 
 router = APIRouter()
 
@@ -86,6 +86,3 @@ async def person_details(person_id: str,
                            role=person_roles,
                            film_ids=film_ids)
     return person_api
-
-
-
