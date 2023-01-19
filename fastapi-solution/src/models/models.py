@@ -41,6 +41,7 @@ class PersonFilms(PersonBase):
 
 class FilmWork(FilmBase):
     age_limit: Optional[int] = 18
+    imdb_rating: float
     genres: list[GenreBase]
     description: str | None
     directors_names: list[str | None]
@@ -51,7 +52,7 @@ class FilmWork(FilmBase):
     directors: list[PersonBase]
 
 
-"""Примеры созданных объектов на основе данных ElasticSearch"""
+"""
 
 person_film = PersonFilms(
     **{
@@ -68,7 +69,6 @@ person_film = PersonFilms(
         },
     }
 )
-
 film = FilmWork(
     **{
         "id": "4af6c9c9-0be0-4864-b1e9-7f87dd59ee1f",
@@ -132,3 +132,4 @@ film = FilmWork(
         ],
     }
 )
+"""
