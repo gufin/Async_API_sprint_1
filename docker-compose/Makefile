@@ -19,7 +19,7 @@ full_run:
 	#docker-compose up Команда для сборки и запуска контейнеров.
 	#--build Сборка образа перед запуском контейнера.
 	#-d Detached mode.
-	docker-compose up --build -d backend db nginx elasticsearch
+	docker-compose up --build -d backend db nginx elasticsearch redis
 
 	#Подключение к консоли веб-контейнера для создания миграций.
 	docker-compose run backend python manage.py migrate

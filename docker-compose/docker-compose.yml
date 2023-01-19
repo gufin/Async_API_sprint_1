@@ -70,6 +70,14 @@ services:
       - etl_value:/opt/etl/results
     entrypoint: [ "bash", "./docker-entrypoint.sh" ]
     restart: always
+  redis:
+    container_name: redis
+    image: redis:6-alpine
+    restart: always
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
 
 volumes:
   static_value:
@@ -77,3 +85,4 @@ volumes:
   elasticsearch_value:
   etl_value:
   postgres_data:
+  redis_data:
