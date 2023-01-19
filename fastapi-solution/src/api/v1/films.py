@@ -3,8 +3,8 @@ from http import HTTPStatus
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 
+from models.models import GenreBase, PersonBase, UUIDMixin
 from services.film import FilmService, get_film_service
-from models.models import UUIDMixin, PersonBase, GenreBase
 
 router = APIRouter()
 

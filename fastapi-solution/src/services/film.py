@@ -5,11 +5,10 @@ from aioredis import Redis
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
 
+from core.config import app_settings
 from db.elastic import get_elastic
 from db.redis import get_redis
-from models.models import FilmWork, GenreBase, PersonBase
-
-FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5  # 5 минут
+from models.models import FilmWork
 
 
 class FilmService:
@@ -23,7 +22,7 @@ class FilmService:
             films = await self._get_list_from_elastic(**kwargs)
             if not films:
                 return []
-            await self._put_list_to_cahe(films)
+            # await self._put_list_to_cahe(films)
         return films
 
     async def _get_list_from_elastic(self, **kwargs):
@@ -63,9 +62,8 @@ class FilmService:
                                                  'sort': sort,
                                              })
         except NotFoundError:
-            # logger.debug('An error occurred while trying to get films in ES)')
             return None
-        return [await self._make_film_from_es_doc(doc) for doc in
+        return [FilmWork.parse_obj(doc['_source']) for doc in
                 docs['hits']['hits']]
 
     async def get_by_id(self, film_id: str) -> Optional[FilmWork]:
@@ -83,55 +81,13 @@ class FilmService:
             doc = await self.elastic.get('movies', film_id)
         except NotFoundError:
             return None
-        data = doc['_source']
-        film = FilmWork(id=data['id'],
-                        imdb_rating=data['imdb_rating'],
-                        title=data['title'],
-                        description=data['description'],
-                        directors_names=data['directors_names'],
-                        actors_names=data['actors_names'],
-                        writers_names=data['writers_names'],
-                        actors=self._get_persons_list(data['actors']),
-                        writers=self._get_persons_list(data['writers']),
-                        genres=self._get_genres_list(data['genres']),
-                        directors=self._get_persons_list(data['directors']),
-                        )
-        return film
-
-    @staticmethod
-    def _get_persons_list(persons: list):
-        return [PersonBase(**person) for person in persons]
-
-    @staticmethod
-    def _get_genres_list(genres: list):
-        return [GenreBase(**genre) for genre in genres]
-
-    async def _make_film_from_es_doc(self, doc: dict) -> FilmWork:
-        data = doc['_source']
-        film = FilmWork(id=data['id'],
-                        imdb_rating=data['imdb_rating'],
-                        title=data['title'],
-                        description=data['description'],
-                        directors_names=data['directors_names'],
-                        actors_names=data['actors_names'],
-                        writers_names=data['writers_names'],
-                        actors=self._get_persons_list(data['actors']),
-                        writers=self._get_persons_list(data['writers']),
-                        genres=self._get_genres_list(data['genres']),
-                        directors=self._get_persons_list(data['directors']),
-                        )
-        return film
+        return FilmWork.parse_obj(doc['_source'])
 
     async def _film_from_cache(self, film_id: str) -> Optional[FilmWork]:
-        data = await self.redis.get(film_id)
-        if not data:
-            return None
-        #film = FilmWork.parse_raw(data)
-        return None
+        pass
 
     async def _put_film_to_cache(self, film: FilmWork):
-        await self.redis.set(str(film.uuid), film.json(),
-                             expire=FILM_CACHE_EXPIRE_IN_SECONDS)
+        pass
 
     async def _list_from_cache(self, **kwargs):
         pass
