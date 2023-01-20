@@ -90,7 +90,7 @@ class PersonService:
 
     async def _put_person_to_cache(self, person: PersonFilms) -> None:
         await self.redis.set(
-            person.uuid, person.json(), expire=app_settings.CACHE_EXPIRE_IN_SECONDS,
+            person.uuid, person.json(by_alias=True), expire=app_settings.CACHE_EXPIRE_IN_SECONDS,
         )
 
     async def _list_from_cache(self, **kwargs) -> list[Optional[PersonFilms]]:
@@ -102,7 +102,7 @@ class PersonService:
 
     async def _put_list_to_cache(self, persons: list, **kwargs):
         if url := kwargs.get('url'):
-            data = [item.json() for item in persons]
+            data = [item.json(by_alias=True) for item in persons]
             await self.redis.lpush(
                 url, *data,
             )

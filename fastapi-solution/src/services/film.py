@@ -10,6 +10,12 @@ from db.elastic import get_elastic
 from db.redis import get_redis
 from models.models import FilmWork
 
+import json
+
+
+async def get_key_by_args(*args, **kwargs) -> str:
+    return f'{args}:{json.dumps({"kwargs": kwargs}, sort_keys=True)}'
+
 
 class FilmService:
     def __init__(self, redis: Redis, elastic: AsyncElasticsearch):
@@ -89,7 +95,7 @@ class FilmService:
 
     async def _put_film_to_cache(self, film: FilmWork):
         await self.redis.set(
-            film.uuid, film.json(), expire=app_settings.CACHE_EXPIRE_IN_SECONDS,
+            film.uuid, film.json(by_alias=True), expire=app_settings.CACHE_EXPIRE_IN_SECONDS,
         )
 
     async def _list_from_cache(self, **kwargs) -> list[Optional[FilmWork]]:
@@ -101,7 +107,7 @@ class FilmService:
 
     async def _put_list_to_cache(self, films: list, **kwargs):
         if url := kwargs.get('url'):
-            data = [item.json() for item in films]
+            data = [item.json(by_alias=True) for item in films]
             await self.redis.lpush(
                 url, *data,
             )

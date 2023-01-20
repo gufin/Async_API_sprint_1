@@ -33,13 +33,11 @@ full_run:
 	#Ожидаем загрузки документов в Elasticsearch
 	sleep 5
 
-	#Вывод результатов загрузки
-	docker-compose exec etl  tail -n 300 cat logs/etl.log
-
     #Запуск FastAPI сервиса
 	docker-compose up --build -d fastapi
 
-	return 1
+	#Вывод результатов загрузки
+	docker-compose exec etl tail -n 300 cat logs/etl.log
 
 env_file:
 	#Создание .env file на основе .env_example.
