@@ -19,7 +19,7 @@ class AppSettings(BaseSettings):
     base_dir: str = Field(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
         env='BASE_DIR')
-    FILM_CACHE_EXPIRE_IN_SECONDS = 300
+    CACHE_EXPIRE_IN_SECONDS = 300
 
     class Config:
         env_file = '.env'

@@ -1,6 +1,6 @@
 from http import HTTPStatus
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel
 
 from models.models import GenreBase, PersonBase, UUIDMixin
@@ -37,6 +37,7 @@ async def film_details(film_id: str,
 
 @router.get('/', response_model=list[FilmList])
 async def film_list(
+        request: Request,
         page_size: int = Query(10, description='Number of films on page'),
         page: int = Query(1, description='Page number'),
         sort: str = Query('',
@@ -48,5 +49,6 @@ async def film_list(
     films = await film_service.get_list(page_size=page_size,
                                         page=page,
                                         sort=sort,
-                                        genre=genre)
+                                        genre=genre,
+                                        url=request.url._url,)
     return [FilmList.parse_obj(film.dict(by_alias=True)) for film in films]

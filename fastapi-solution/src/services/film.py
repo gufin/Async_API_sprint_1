@@ -22,7 +22,7 @@ class FilmService:
             films = await self._get_list_from_elastic(**kwargs)
             if not films:
                 return []
-            # await self._put_list_to_cahe(films)
+            await self._put_list_to_cache(films, **kwargs)
         return films
 
     async def _get_list_from_elastic(self, **kwargs):
@@ -84,16 +84,28 @@ class FilmService:
         return FilmWork.parse_obj(doc['_source'])
 
     async def _film_from_cache(self, film_id: str) -> Optional[FilmWork]:
-        pass
+        data = await self.redis.get(film_id)
+        return FilmWork.parse_raw(data) if data else None
 
     async def _put_film_to_cache(self, film: FilmWork):
-        pass
+        await self.redis.set(
+            film.uuid, film.json(), expire=app_settings.CACHE_EXPIRE_IN_SECONDS,
+        )
 
-    async def _list_from_cache(self, **kwargs):
-        pass
+    async def _list_from_cache(self, **kwargs) -> list[Optional[FilmWork]]:
+        if url := kwargs.get('url'):
+            data = await self.redis.lrange(url, 0, -1)
+            films = [FilmWork.parse_raw(item) for item in data]
+            return films[::-1] if films else []
+        return []
 
-    async def _put_list_to_cache(self, films: list):
-        pass
+    async def _put_list_to_cache(self, films: list, **kwargs):
+        if url := kwargs.get('url'):
+            data = [item.json() for item in films]
+            await self.redis.lpush(
+                url, *data,
+            )
+            await self.redis.expire(url, app_settings.CACHE_EXPIRE_IN_SECONDS)
 
 
 @lru_cache()

@@ -5,6 +5,7 @@ from aioredis import Redis
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
 
+from core.config import app_settings
 from db.elastic import get_elastic
 from db.redis import get_redis
 from models.models import GenreBase
@@ -21,7 +22,7 @@ class GenreService:
             genres = await self._get_list_from_elastic(**kwargs)
             if not genres:
                 return []
-            # await self._put_list_to_cahe(genres)
+            await self._put_list_to_cache(genres, **kwargs)
         return genres
 
     async def _get_list_from_elastic(self, **kwargs):
@@ -84,16 +85,28 @@ class GenreService:
 
     async def _genre_from_cache(self,
                                 genre_id: str) -> Optional[GenreBase]:
-        pass
+        data = await self.redis.get(genre_id)
+        return GenreBase.parse_raw(data) if data else None
 
-    async def _put_genre_to_cache(self, genre) -> None:
-        pass
+    async def _put_genre_to_cache(self, genre: GenreBase) -> None:
+        await self.redis.set(
+            genre.uuid, genre.json(), expire=app_settings.CACHE_EXPIRE_IN_SECONDS,
+        )
 
-    async def _list_from_cache(self, **kwargs):
-        pass
+    async def _list_from_cache(self, **kwargs) -> list[Optional[GenreBase]]:
+        if url := kwargs.get('url'):
+            data = await self.redis.lrange(url, 0, -1)
+            genres = [GenreBase.parse_raw(item) for item in data]
+            return genres[::-1] if genres else []
+        return []
 
-    async def _put_list_to_cache(self, genres: list):
-        pass
+    async def _put_list_to_cache(self, genres: list[GenreBase], **kwargs):
+        if url := kwargs.get('url'):
+            data = [item.json() for item in genres]
+            await self.redis.lpush(
+                url, *data,
+            )
+            await self.redis.expire(url, app_settings.CACHE_EXPIRE_IN_SECONDS)
 
 
 @lru_cache()

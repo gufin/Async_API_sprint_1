@@ -5,6 +5,7 @@ from aioredis import Redis
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
 
+from core.config import app_settings
 from db.elastic import get_elastic
 from db.redis import get_redis
 from models.models import PersonBase, PersonFilms
@@ -21,7 +22,7 @@ class PersonService:
             persons = await self._get_list_from_elastic(**kwargs)
             if not persons:
                 return []
-            # await self._put_list_to_cahe(persons)
+            await self._put_list_to_cache(persons, **kwargs)
         return persons
 
     async def _get_list_from_elastic(self, **kwargs):
@@ -84,16 +85,28 @@ class PersonService:
 
     async def _person_from_cache(self,
                                  person_id: str) -> Optional[PersonFilms]:
-        pass
+        data = await self.redis.get(person_id)
+        return PersonFilms.parse_raw(data) if data else None
 
-    async def _put_person_to_cache(self, person) -> None:
-        pass
+    async def _put_person_to_cache(self, person: PersonFilms) -> None:
+        await self.redis.set(
+            person.uuid, person.json(), expire=app_settings.CACHE_EXPIRE_IN_SECONDS,
+        )
 
-    async def _list_from_cache(self, **kwargs):
-        pass
+    async def _list_from_cache(self, **kwargs) -> list[Optional[PersonFilms]]:
+        if url := kwargs.get('url'):
+            data = await self.redis.lrange(url, 0, -1)
+            persons = [PersonFilms.parse_raw(item) for item in data]
+            return persons[::-1] if persons else []
+        return []
 
-    async def _put_list_to_cache(self, persons: list):
-        pass
+    async def _put_list_to_cache(self, persons: list, **kwargs):
+        if url := kwargs.get('url'):
+            data = [item.json() for item in persons]
+            await self.redis.lpush(
+                url, *data,
+            )
+            await self.redis.expire(url, app_settings.CACHE_EXPIRE_IN_SECONDS)
 
 
 @lru_cache()
