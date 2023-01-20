@@ -43,8 +43,6 @@ services:
 
   elasticsearch:
     image: elasticsearch:7.7.0
-    ports:
-      - "9200:9200"
     environment:
       discovery.type: single-node
       ES_JAVA_OPTS: "-Xmx512m -Xms512m"
@@ -76,8 +74,17 @@ services:
     restart: always
     volumes:
       - redis_data:/data
+  fastapi:
+    build: ../fastapi-solution/
+    env_file:
+      - ./.env
+    depends_on:
+      - elasticsearch
+      - redis
+      - db
     ports:
-      - "6379:6379"
+      - "8001:8001"
+    command: python main.py
 
 volumes:
   static_value:
