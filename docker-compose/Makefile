@@ -19,7 +19,7 @@ full_run:
 	#docker-compose up Команда для сборки и запуска контейнеров.
 	#--build Сборка образа перед запуском контейнера.
 	#-d Detached mode.
-	docker-compose up --build -d backend db nginx elasticsearch redis fastapi
+	docker-compose up --build -d backend db nginx elasticsearch redis
 
 	#Подключение к консоли веб-контейнера для создания миграций.
 	docker-compose run backend python manage.py migrate
@@ -35,6 +35,10 @@ full_run:
 
 	#Вывод результатов загрузки
 	docker-compose exec etl  tail -n 300 cat logs/etl.log
+
+    #Запуск FastAPI сервиса
+	docker-compose up --build -d fastapi
+
 	return 1
 
 env_file:
