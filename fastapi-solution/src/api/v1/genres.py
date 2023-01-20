@@ -1,6 +1,6 @@
 from http import HTTPStatus
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel
 
 from models.models import UUIDMixin
@@ -15,6 +15,7 @@ class GenreAPI(UUIDMixin, BaseModel):
 
 @router.get('/', response_model=list[GenreAPI])
 async def genre_list(
+        request: Request,
         page_size: int = Query(10, description='Number of films on page'),
         page: int = Query(1, description='Page number'),
         sort: str = Query('',
@@ -26,7 +27,8 @@ async def genre_list(
     genres = await get_genre_service.get_list(page_size=page_size,
                                               page=page,
                                               sort=sort,
-                                              genre=genre)
+                                              genre=genre,
+                                              url=request.url._url, )
     return [GenreAPI.parse_obj(genre.dict(by_alias=True)) for genre in
             genres]
 

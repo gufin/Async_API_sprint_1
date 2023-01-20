@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel
 
 from models.models import UUIDMixin
@@ -27,6 +27,7 @@ class PersonListAPI(UUIDMixin, BaseModel):
 
 @router.get('/', response_model=list[PersonListAPI])
 async def person_list(
+        request: Request,
         page_size: int = Query(10, description='Number of films on page'),
         page: int = Query(1, description='Page number'),
         sort: str = Query('',
@@ -38,7 +39,8 @@ async def person_list(
     persons = await get_person_service.get_list(page_size=page_size,
                                                 page=page,
                                                 sort=sort,
-                                                genre=genre)
+                                                genre=genre,
+                                                url=request.url._url, )
     return [PersonListAPI.parse_obj(person.dict(by_alias=True)) for person in
             persons]
 
