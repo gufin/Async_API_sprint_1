@@ -1,32 +1,48 @@
 from http import HTTPStatus
 
-from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
-from services.film import FilmService, get_film_service
+from api.v1.models import FilmAPI, FilmList
+from services.film import BaseService, get_film_service
 
 router = APIRouter()
 
 
-class Film(BaseModel):
-    id: str
-    title: str
-
-
-# Внедряем FilmService с помощью Depends(get_film_service)
-@router.get('/{film_id}', response_model=Film)
-async def film_details(film_id: str, film_service: FilmService = Depends(get_film_service)) -> Film:
+@router.get('/{film_id}',
+            response_model=FilmAPI,
+            summary='Shows detailed information about the movie',
+            description=('Shows detailed information about the movie '
+                         'such as actors directors scriptwriters description '
+                         'and rating'),
+            )
+async def film_details(film_id: str,
+                       film_service: BaseService = Depends(get_film_service)
+                       ) -> FilmAPI:
     film = await film_service.get_by_id(film_id)
     if not film:
-        # Если фильм не найден, отдаём 404 статус
-        # Желательно пользоваться уже определёнными HTTP-статусами, которые содержат enum
-                # Такой код будет более поддерживаемым
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND,
+                            detail='film not found')
+    return FilmAPI.parse_obj(film.dict(by_alias=True))
 
-    # Перекладываем данные из models.Film в Film
-    # Обратите внимание, что у модели бизнес-логики есть поле description
-        # Которое отсутствует в модели ответа API.
-        # Если бы использовалась общая модель для бизнес-логики и формирования ответов API
-        # вы бы предоставляли клиентам данные, которые им не нужны
-        # и, возможно, данные, которые опасно возвращать
-    return Film(id=film.id, title=film.title)
+
+@router.get('/',
+            response_model=list[FilmList],
+            summary='Shows a list of movies',
+            description='Shows a list of movies'
+            )
+async def film_list(
+        request: Request,
+        page_size: int = Query(10, description='Number of films on page'),
+        page: int = Query(1, description='Page number'),
+        sort: str = Query('',
+                          description='Sorting field. '
+                                      'Example: imdb_rating:desc'),
+        genre: str = Query(None, description='Filter by genre uuid'),
+        film_service: BaseService = Depends(get_film_service)
+) -> list[FilmList]:
+    films = await film_service.get_list(page_size=page_size,
+                                        page=page,
+                                        sort=sort,
+                                        genre=genre,
+                                        url=request.url._url, )
+    return [FilmList.parse_obj(film.dict(by_alias=True)) for film in films]
