@@ -90,7 +90,7 @@ class GenreService:
 
     async def _put_genre_to_cache(self, genre: GenreBase) -> None:
         await self.redis.set(
-            genre.uuid, genre.json(by_alias=True), expire=app_settings.CACHE_EXPIRE_IN_SECONDS,
+            str(genre.uuid), genre.json(by_alias=True), expire=app_settings.CACHE_EXPIRE_IN_SECONDS,
         )
 
     async def _list_from_cache(self, **kwargs) -> list[Optional[GenreBase]]:

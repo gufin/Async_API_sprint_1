@@ -43,8 +43,8 @@ class FilmWork(FilmBase):
     age_limit: Optional[int] = 18
     imdb_rating: float
     genres: list[GenreBase]
-    description: str | None
-    directors_names: list[str | None]
+    description: Optional[str]
+    directors_names: list[Optional[str]]
     actors_names: list[str]
     writers_names: list[str]
     actors: list[PersonBase]

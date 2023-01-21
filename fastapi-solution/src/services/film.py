@@ -95,7 +95,7 @@ class FilmService:
 
     async def _put_film_to_cache(self, film: FilmWork):
         await self.redis.set(
-            film.uuid, film.json(by_alias=True), expire=app_settings.CACHE_EXPIRE_IN_SECONDS,
+            str(film.uuid), film.json(by_alias=True), expire=app_settings.CACHE_EXPIRE_IN_SECONDS,
         )
 
     async def _list_from_cache(self, **kwargs) -> list[Optional[FilmWork]]:
