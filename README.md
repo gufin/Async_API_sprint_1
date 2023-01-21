@@ -1,4 +1,4 @@
-# 🛠 Educational project. 
+# 🛠 Educational project
 Online cinema. API can give information about movies in the database and about each specific movie or person, the application has an admin panel and full text search based on Elasticsearch which loads by ETL process.
 
 The following tools were used in the backend part of the project:
