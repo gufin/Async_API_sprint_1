@@ -15,25 +15,25 @@ class FilmAPI(UUIDMixin, BaseModel):
     directors: list[PersonBase]
 
 
-class FilmList(UUIDMixin, BaseModel):
+class FilmList(UUIDMixin):
     title: str
     imdb_rating: float
 
 
-class GenreAPI(UUIDMixin, BaseModel):
+class GenreAPI(UUIDMixin):
     name: str
 
 
-class PersonAPI(UUIDMixin, BaseModel):
+class PersonAPI(UUIDMixin):
     full_name: str
     role: str
     film_ids: list[UUID]
 
 
-class PersonsFilm(UUIDMixin, BaseModel):
+class PersonsFilm(UUIDMixin):
     title: str
     imdb_rating: float
 
 
-class PersonListAPI(UUIDMixin, BaseModel):
+class PersonListAPI(UUIDMixin):
     full_name: str

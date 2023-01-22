@@ -82,8 +82,6 @@ services:
       - elasticsearch
       - redis
       - db
-    ports:
-      - "8001:8001"
     command: python main.py
 
 volumes:

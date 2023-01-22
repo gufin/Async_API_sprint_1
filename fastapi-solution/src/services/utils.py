@@ -11,7 +11,7 @@ class BaseService:
         self.elastic = elastic
         self.index = index
         self.model = model
-        self.list_model = model if list_model is None else list_model
+        self.list_model = list_model or model
 
     async def get_list(self, **kwargs):
         service_objects = await self._list_from_cache(**kwargs)
@@ -22,12 +22,13 @@ class BaseService:
             await self._put_list_to_cache(service_objects, **kwargs)
         return service_objects
 
-    async def _get_list_from_elastic(self, **kwargs):
-        page_size = kwargs.get('page_size', 10)
-        page = kwargs.get('page', 1)
-        sort = kwargs.get('sort', '')
-        genre = kwargs.get('genre', None)
-        query = kwargs.get('query', None)
+    async def _get_list_from_elastic(self,
+                                     page_size=10,
+                                     page=1,
+                                     sort='',
+                                     genre=None,
+                                     query=None,
+                                     url=None):
         body = None
         if genre:
             body = {
@@ -89,7 +90,7 @@ class BaseService:
     async def _put_service_object_to_cache(self, service_object):
         await self.redis.set(
             str(service_object.uuid), service_object.json(by_alias=True),
-            expire=app_settings.CACHE_EXPIRE_IN_SECONDS,
+            expire=app_settings.cache_expire_in_seconds,
         )
 
     async def _list_from_cache(self, **kwargs):
@@ -105,4 +106,4 @@ class BaseService:
             await self.redis.lpush(
                 url, *data,
             )
-            await self.redis.expire(url, app_settings.CACHE_EXPIRE_IN_SECONDS)
+            await self.redis.expire(url, app_settings.cache_expire_in_seconds)
