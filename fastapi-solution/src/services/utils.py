@@ -93,17 +93,31 @@ class BaseService:
             expire=app_settings.cache_expire_in_seconds,
         )
 
+    @staticmethod
+    def _generate_redis_key(params: dict):
+        if url := params.get('url'):
+            model_name = url.split('api')[1].split('/')[2]
+            page = params.get('page', 1)
+            page_size = params.get('page_size', 10)
+            sort = params.get('sort') or None
+            genre = params.get('genre') or None
+            return (
+                f'api/v1/{model_name}/?page_size=&{page_size}'
+                f'&page={page}&sort={sort}&genre={genre}'
+            )
+        return None
+
     async def _list_from_cache(self, **kwargs):
-        if url := kwargs.get('url'):
-            data = await self.redis.lrange(url, 0, -1)
+        if key := self._generate_redis_key(params=kwargs):
+            data = await self.redis.lrange(key, 0, -1)
             service_objects = [self.list_model.parse_raw(item) for item in data]
             return service_objects[::-1] if service_objects else []
         return []
 
     async def _put_list_to_cache(self, service_objects: list, **kwargs):
-        if url := kwargs.get('url'):
+        if key := self._generate_redis_key(params=kwargs):
             data = [item.json(by_alias=True) for item in service_objects]
             await self.redis.lpush(
-                url, *data,
+                key, *data,
             )
-            await self.redis.expire(url, app_settings.cache_expire_in_seconds)
+    await self.redis.expire(key, app_settings.cache_expire_in_seconds)
