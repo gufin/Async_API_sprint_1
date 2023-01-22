@@ -120,4 +120,4 @@ class BaseService:
             await self.redis.lpush(
                 key, *data,
             )
-    await self.redis.expire(key, app_settings.cache_expire_in_seconds)
+        await self.redis.expire(key, app_settings.cache_expire_in_seconds)
