@@ -1,4 +1,5 @@
 import aioredis
+import gunicorn as gunicorn
 import uvicorn
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
@@ -9,7 +10,7 @@ from core.config import app_settings
 from db import elastic, redis
 
 app = FastAPI(
-    title=app_settings.PROJECT_NAME,
+    title=app_settings.project_name,
     docs_url='/api/openapi',
     openapi_url='/api/openapi.json',
     default_response_class=ORJSONResponse,
@@ -19,9 +20,9 @@ app = FastAPI(
 @app.on_event('startup')
 async def startup():
     redis.redis = await aioredis.create_redis_pool(
-        (app_settings.REDIS_HOST, app_settings.REDIS_PORT), minsize=10, maxsize=20)
+        (app_settings.redis_host, app_settings.redis_port), minsize=10, maxsize=20)
     elastic.es = AsyncElasticsearch(
-        hosts=[f'{app_settings.ELASTIC_HOST}:{app_settings.ELASTIC_PORT}'])
+        hosts=[f'{app_settings.elastic_host}:{app_settings.elastic_port}'])
 
 
 @app.on_event('shutdown')
