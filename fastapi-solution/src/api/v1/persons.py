@@ -2,6 +2,7 @@ from http import HTTPStatus
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
+import core.constants as constants
 from api.v1.models import PersonAPI, PersonListAPI, PersonsFilm
 from services.person import BaseService, get_person_service
 
@@ -10,17 +11,17 @@ router = APIRouter()
 
 @router.get('/',
             response_model=list[PersonListAPI],
-            summary='Shows a list of persons',
-            description='Shows a list of persons'
+            summary=constants.PERSON_LIST_SUMMARY,
+            description=constants.PERSON_LIST_DESCRIPTION
             )
 async def person_list(
         request: Request,
-        page_size: int = Query(10, description='Number of films on page'),
-        page: int = Query(1, description='Page number'),
-        sort: str = Query('',
-                          description='Sorting field. '
-                                      'Example: imdb_rating:desc'),
-        genre: str = Query(None, description='Filter by genre uuid'),
+        page_size: int = Query(10, description=constants.PAGE_SIZE_DESCRIPTION,
+                               ge=1),
+        page: int = Query(1, description=constants.PAGE_DESCRIPTION, ge=1),
+        sort: str = Query('', description=constants.SORT_DESCRIPTION),
+        genre: str = Query(None,
+                           description=constants.GENRE_FILTER_DESCRIPTION),
         get_person_service: BaseService = Depends(get_person_service)
 ) -> list[PersonListAPI]:
     persons = await get_person_service.get_list(page_size=page_size,
@@ -32,10 +33,37 @@ async def person_list(
             persons]
 
 
+@router.get('/search',
+            response_model=list[PersonListAPI],
+            summary=constants.PERSON_SEARCH_LIST_SUMMARY,
+            description=constants.PERSON_SEARCH_LIST_DESCRIPTION
+            )
+async def person_list(
+        request: Request,
+        page_size: int = Query(10, description=constants.PAGE_SIZE_DESCRIPTION,
+                               ge=1),
+        page: int = Query(1, description=constants.PAGE_DESCRIPTION, ge=1),
+        sort: str = Query('', description=constants.SORT_DESCRIPTION),
+        genre: str = Query(None,
+                           description=constants.GENRE_FILTER_DESCRIPTION),
+        query: str = Query(None,
+                           description=constants.PERSON_SEARCH_DESCRIPTION),
+        get_person_service: BaseService = Depends(get_person_service)
+) -> list[PersonListAPI]:
+    persons = await get_person_service.get_list(page_size=page_size,
+                                                page=page,
+                                                sort=sort,
+                                                genre=genre,
+                                                query=query,
+                                                url=request.url._url, )
+    return [PersonListAPI.parse_obj(person.dict(by_alias=True)) for person in
+            persons]
+
+
 @router.get('/{person_id}/film',
             response_model=list[PersonsFilm],
-            summary='Shows films in which the person took part',
-            description='Shows films in which the person took part'
+            summary=constants.PERSON_FILMS_SUMMARY,
+            description=constants.PERSON_FILMS_DESCRIPTION
             )
 async def person_details(person_id: str,
                          person_service: BaseService = Depends(
@@ -44,7 +72,7 @@ async def person_details(person_id: str,
     person = await person_service.get_by_id(person_id)
     if not person:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND,
-                            detail='person not found')
+                            detail=constants.PERSON_NOT_FOUND)
     films = []
     for film_data in person.films.values():
         for film in film_data:
@@ -56,9 +84,8 @@ async def person_details(person_id: str,
 
 @router.get('/{person_id}',
             response_model=PersonAPI,
-            summary='Shows detailed information about the person',
-            description=('Shows detailed information about the person. '
-                         'In what films did he participate and in what role'),
+            summary=constants.PERSON_ID_SUMMARY,
+            description=constants.PERSON_ID_DESCRIPTION,
             )
 async def person_details(person_id: str,
                          person_service: BaseService = Depends(
@@ -67,7 +94,7 @@ async def person_details(person_id: str,
     person = await person_service.get_by_id(person_id)
     if not person:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND,
-                            detail='person not found')
+                            detail=constants.PERSON_NOT_FOUND)
     film_ids = []
     person_roles = ''
     for role, films in person.films.items():

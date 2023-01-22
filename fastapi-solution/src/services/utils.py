@@ -11,7 +11,7 @@ class BaseService:
         self.elastic = elastic
         self.index = index
         self.model = model
-        self.list_model = model if list_model is None else list_model
+        self.list_model = list_model or model
 
     async def get_list(self, **kwargs):
         service_objects = await self._list_from_cache(**kwargs)
@@ -22,12 +22,13 @@ class BaseService:
             await self._put_list_to_cache(service_objects, **kwargs)
         return service_objects
 
-    async def _get_list_from_elastic(self, **kwargs):
-        page_size = kwargs.get('page_size', 10)
-        page = kwargs.get('page', 1)
-        sort = kwargs.get('sort', '')
-        genre = kwargs.get('genre', None)
-        query = kwargs.get('query', None)
+    async def _get_list_from_elastic(self,
+                                     page_size=10,
+                                     page=1,
+                                     sort='',
+                                     genre=None,
+                                     query=None,
+                                     url=None):
         body = None
         if genre:
             body = {
@@ -89,20 +90,34 @@ class BaseService:
     async def _put_service_object_to_cache(self, service_object):
         await self.redis.set(
             str(service_object.uuid), service_object.json(by_alias=True),
-            expire=app_settings.CACHE_EXPIRE_IN_SECONDS,
+            expire=app_settings.cache_expire_in_seconds,
         )
 
+    @staticmethod
+    def _generate_redis_key(params: dict):
+        if url := params.get('url'):
+            model_name = url.split('api')[1].split('/')[2]
+            page = params.get('page', 1)
+            page_size = params.get('page_size', 10)
+            sort = params.get('sort') or None
+            genre = params.get('genre') or None
+            return (
+                f'api/v1/{model_name}/?page_size=&{page_size}'
+                f'&page={page}&sort={sort}&genre={genre}'
+            )
+        return None
+
     async def _list_from_cache(self, **kwargs):
-        if url := kwargs.get('url'):
-            data = await self.redis.lrange(url, 0, -1)
+        if key := self._generate_redis_key(params=kwargs):
+            data = await self.redis.lrange(key, 0, -1)
             service_objects = [self.list_model.parse_raw(item) for item in data]
             return service_objects[::-1] if service_objects else []
         return []
 
     async def _put_list_to_cache(self, service_objects: list, **kwargs):
-        if url := kwargs.get('url'):
+        if key := self._generate_redis_key(params=kwargs):
             data = [item.json(by_alias=True) for item in service_objects]
             await self.redis.lpush(
-                url, *data,
+                key, *data,
             )
-            await self.redis.expire(url, app_settings.CACHE_EXPIRE_IN_SECONDS)
+        await self.redis.expire(key, app_settings.cache_expire_in_seconds)
