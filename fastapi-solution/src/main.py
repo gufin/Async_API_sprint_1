@@ -1,5 +1,4 @@
 import aioredis
-import gunicorn as gunicorn
 import uvicorn
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
