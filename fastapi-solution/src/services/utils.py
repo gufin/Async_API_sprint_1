@@ -3,6 +3,17 @@ from elasticsearch import AsyncElasticsearch, NotFoundError
 
 from core.config import app_settings
 
+def my_obj_decorator(func_to_decorate):
+    async def the_wrapper_around_the_original_function(**kwargs):
+        cls = kwargs.get('self')
+        service_object_id = kwargs.get('service_object_id')
+        data = await cls.redis.get(service_object_id)
+        if data:
+            return cls.model.parse_raw(data)
+        else:
+            return await func_to_decorate(cls, service_object_id)
+    return the_wrapper_around_the_original_function()
+
 
 class BaseService:
     def __init__(self, redis: Redis, elastic: AsyncElasticsearch, index: str,
@@ -64,15 +75,13 @@ class BaseService:
         return [self.list_model.parse_obj(doc['_source']) for doc in
                 docs['hits']['hits']]
 
+    @my_obj_decorator
     async def get_by_id(self, service_object_id: str):
-        service_object = await self._service_object_from_cache(
+        service_object = await self._get_service_object_from_elastic(
             service_object_id)
         if not service_object:
-            service_object = await self._get_service_object_from_elastic(
-                service_object_id)
-            if not service_object:
-                return None
-            await self._put_service_object_to_cache(service_object)
+            return None
+        await self._put_service_object_to_cache(service_object)
 
         return service_object
 
@@ -121,3 +130,11 @@ class BaseService:
                 key, *data,
             )
         await self.redis.expire(key, app_settings.cache_expire_in_seconds)
+
+
+
+
+
+
+
+
