@@ -19,6 +19,8 @@ class AppSettings(BaseSettings):
 
     cache_expire_in_seconds: int = 300
 
+    CONNECTIONS_MAX_TIME = 60
+
     class Config:
         env_file = '.env'
 
