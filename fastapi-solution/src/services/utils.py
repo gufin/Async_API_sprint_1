@@ -43,20 +43,20 @@ class RedisWorker:
         model_name = url.split('api')[1].split('/')[2]
         return (
             f'api/v1/{model_name}/?page_size={page_size}'
-            f'&page={page}&sort={sort}&genre={genre}'
+            f'&page={page}&sort={sort if sort else None}&genre={genre}'
         )
 
     @staticmethod
     async def _put_service_object_to_cache(cls, service_object):
         await cls.redis.set(
             str(service_object.uuid), service_object.json(by_alias=True),
-            expire=app_settings.cache_expire_in_seconds,
         )
 
     async def _put_list_to_cache(self, cls, service_objects: list,
                                  page_size: int,
                                  page: int, sort: str, genre: str, url: str):
         if key := self._generate_redis_key(page_size, page, sort, genre, url):
+            print(key)
             data = [item.json(by_alias=True) for item in service_objects]
             await cls.redis.lpush(
                 key, *data,

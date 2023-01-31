@@ -28,7 +28,8 @@ async def person_list(
                                                 page=page,
                                                 sort=sort,
                                                 genre=genre,
-                                                url=request.url._url, )
+                                                url=request.url._url,
+                                                query=None,)
     return [PersonListAPI.parse_obj(person.dict(by_alias=True)) for person in
             persons]
 
