@@ -28,7 +28,8 @@ async def genre_list(
                                               page=page,
                                               sort=sort,
                                               genre=genre,
-                                              url=request.url._url, )
+                                              url=request.url._url,
+                                              query=None,)
     return [GenreAPI.parse_obj(genre.dict(by_alias=True)) for genre in
             genres]
 

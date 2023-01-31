@@ -29,8 +29,7 @@ async def startup():
 
 @app.on_event('shutdown')
 async def shutdown():
-    redis.redis.close()
-    await redis.redis.wait_closed()
+    await redis.redis.close()
     await elastic.es.close()
 
 
