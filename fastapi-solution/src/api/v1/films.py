@@ -45,7 +45,8 @@ async def film_list(
                                         page=page,
                                         sort=sort_val,
                                         genre=genre,
-                                        url=request.url._url, )
+                                        url=request.url._url,
+                                        query=None)
     return [FilmList.parse_obj(film.dict(by_alias=True)) for film in films]
 
 
