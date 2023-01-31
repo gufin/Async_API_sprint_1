@@ -90,7 +90,6 @@ class BaseService:
     async def _put_service_object_to_cache(self, service_object):
         await self.redis.set(
             str(service_object.uuid), service_object.json(by_alias=True),
-            expire=app_settings.cache_expire_in_seconds,
         )
 
     @staticmethod
@@ -102,7 +101,7 @@ class BaseService:
             sort = params.get('sort') or None
             genre = params.get('genre') or None
             return (
-                f'api/v1/{model_name}/?page_size=&{page_size}'
+                f'api/v1/{model_name}/?page_size={page_size}'
                 f'&page={page}&sort={sort}&genre={genre}'
             )
         return None

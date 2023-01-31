@@ -16,6 +16,7 @@ class AppSettings(BaseSettings):
 
     elastic_host: str = '127.0.0.1'
     elastic_port: int = 9200
+    redis_url: str = 'redis://127.0.0.1:6379'
 
     base_dir: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
