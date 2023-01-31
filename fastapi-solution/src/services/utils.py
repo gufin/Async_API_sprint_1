@@ -11,17 +11,16 @@ class RedisWorker:
             data = await cls.redis.get(service_object_id)
             if data:
                 return cls.model.parse_raw(data)
-            else:
-                service_object = await func(cls, service_object_id)
-                await self._put_service_object_to_cache(cls, service_object)
-                return service_object
+            service_object = await func(cls, service_object_id)
+            await self._put_service_object_to_cache(cls, service_object)
+            return service_object
 
         return wrapper
 
     def get_list(self, func):
         async def wrapper(cls, page_size: int, page: int, sort: str,
-                          genre: str, query: str,
-                          url: str):
+                              genre: str, query: str,
+                              url: str):
             if key := self._generate_redis_key(page_size, page, sort, genre,
                                                url):
                 data = await cls.redis.lrange(key, 0, -1)
@@ -29,13 +28,12 @@ class RedisWorker:
                                    data]
                 if service_objects:
                     return service_objects[::-1]
-                else:
-                    service_objects = await func(cls, page_size, page, sort,
-                                                 genre, query, url)
-                    await self._put_list_to_cache(cls, service_objects,
-                                                  page_size, page, sort, genre,
-                                                  url)
-                    return service_objects
+                service_objects = await func(cls, page_size, page, sort,
+                                             genre, query, url)
+                await self._put_list_to_cache(cls, service_objects,
+                                              page_size, page, sort, genre,
+                                              url)
+                return service_objects
 
         return wrapper
 
@@ -44,7 +42,7 @@ class RedisWorker:
                             url: str):
         model_name = url.split('api')[1].split('/')[2]
         return (
-            f'api/v1/{model_name}/?page_size=&{page_size}'
+            f'api/v1/{model_name}/?page_size={page_size}'
             f'&page={page}&sort={sort}&genre={genre}'
         )
 
@@ -91,9 +89,7 @@ class BaseService:
                                                             genre,
                                                             query,
                                                             url)
-        if not service_objects:
-            return []
-        return service_objects
+        return service_objects or []
 
     async def _get_list_from_elastic(self,
                                      page_size=10,
@@ -141,10 +137,7 @@ class BaseService:
     async def get_by_id(self, service_object_id: str):
         service_object = await self._get_service_object_from_elastic(
             service_object_id)
-        if not service_object:
-            return None
-
-        return service_object
+        return service_object or None
 
     async def _get_service_object_from_elastic(self, service_object_id: str):
         try:
