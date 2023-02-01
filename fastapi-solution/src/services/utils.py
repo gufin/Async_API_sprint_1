@@ -12,7 +12,8 @@ class RedisWorker:
             if data:
                 return cls.model.parse_raw(data)
             service_object = await func(cls, service_object_id)
-            await self._put_service_object_to_cache(cls, service_object)
+            if service_object:
+                await self._put_service_object_to_cache(cls, service_object)
             return service_object
 
         return wrapper

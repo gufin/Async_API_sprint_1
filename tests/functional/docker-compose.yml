@@ -23,6 +23,8 @@ services:
       - "6379:6379"
   tests:
     build: .
+    env_file:
+      - ./.env
     entrypoint: >
       sh -c "python3 utils/wait_for_es.py
       && python3 utils/wait_for_redis.py

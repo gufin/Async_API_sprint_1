@@ -19,7 +19,7 @@ async def genre_list(
         page_size: int = Query(10, description=constants.PAGE_SIZE_DESCRIPTION,
                                ge=1),
         page: int = Query(1, description=constants.PAGE_DESCRIPTION, ge=1),
-        sort: str = Query('', description=constants.SORT_DESCRIPTION),
+        sort: constants.GenreSortingFields = Query('', description=constants.SORT_DESCRIPTION),
         genre: str = Query(None,
                            description=constants.GENRE_FILTER_DESCRIPTION),
         get_genre_service: BaseService = Depends(get_genre_service)
