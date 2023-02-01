@@ -1,76 +1,56 @@
-import datetime
-import uuid
 import json
+from http import HTTPStatus
 
-import aiohttp
 import pytest
 
-from elasticsearch import AsyncElasticsearch
+from testdata.es_data import high_rating
 
-from settings import app_settings as test_settings
-
-
-#  Название теста должно начинаться со слова `test_`
-#  Любой тест с асинхронными вызовами нужно оборачивать декоратором `pytest.mark.asyncio`, который следит за запуском и работой цикла событий.
 
 @pytest.mark.asyncio
-async def test_search():
-    # 1. Генерируем данные для ES
+async def test_search_film_fast_api(make_get_request):
+    original_film = high_rating[0]
+    response = await make_get_request("/films/",
+                                      params={"query": "High rating title"})
+    film = response.body[0]
+    assert response.status == HTTPStatus.OK
+    for key in film.keys():
+        assert film[key] == original_film[key]
 
-    es_data = [{
-        'id': str(uuid.uuid4()),
-        'imdb_rating': 8.5,
-        'genre': ['Action', 'Sci-Fi'],
-        'title': 'The Star',
-        'description': 'New World',
-        'director': ['Stan'],
-        'actors_names': ['Ann', 'Bob'],
-        'writers_names': ['Ben', 'Howard'],
-        'actors': [
-            {'id': '111', 'name': 'Ann'},
-            {'id': '222', 'name': 'Bob'}
-        ],
-        'writers': [
-            {'id': '333', 'name': 'Ben'},
-            {'id': '444', 'name': 'Howard'}
-        ],
-        'created_at': datetime.datetime.now().isoformat(),
-        'updated_at': datetime.datetime.now().isoformat(),
-        'film_work_type': 'movie'
-    } for _ in range(60)]
 
-    bulk_query = []
-    for row in es_data:
-        bulk_query.extend([
-            json.dumps({'index': {'_index': test_settings.es_index,
-                                  '_id': row[test_settings.es_id_field]}}),
-            json.dumps(row)
-        ])
+@pytest.mark.asyncio
+async def test_search_film_fast_api_invalid_title(make_get_request):
+    response = await make_get_request("/films/",
+                                      params={"query": "Harry Potter"})
+    assert len(response.body) == 0
 
-    str_query = '\n'.join(bulk_query) + '\n'
 
-    # 2. Загружаем данные в ES
+@pytest.mark.asyncio
+async def test_search_genre_fast_api(make_get_request):
+    response = await make_get_request("/genres/",
+                                      params={"query": "Thriller"})
+    genre = response.body[0]
+    assert response.status == HTTPStatus.OK
+    assert str(genre['id']) == "0ee5e6ef-2cd0-49db-8f71-8030f590d220"
 
-    es_client = AsyncElasticsearch(hosts=test_settings.es_host,
-                                   validate_cert=False,
-                                   use_ssl=False)
-    response = await es_client.bulk(str_query, refresh=True)
-    await es_client.close()
-    if response['errors']:
-        raise Exception('Ошибка записи данных в Elasticsearch')
 
-    # 3. Запрашиваем данные из ES по API
+@pytest.mark.asyncio
+async def test_search_genre_fast_api_invalid_name(make_get_request):
+    response = await make_get_request("/genres/",
+                                      params={"query": "Horror"})
+    assert len(response.body) == 0
 
-    session = aiohttp.ClientSession()
-    url = test_settings.service_url + '/api/v1/search'
-    query_data = {'search': 'The Star'}
-    async with session.get(url, params=query_data) as response:
-        body = await response.json()
-        headers = response.headers
-        status = response.status
-    await session.close()
 
-    # 4. Проверяем ответ
+@pytest.mark.asyncio
+async def test_search_person_fast_api(make_get_request):
+    response = await make_get_request("/persons/",
+                                      params={"query": "Madikhan"})
+    person = response.body[0]
+    assert response.status == HTTPStatus.OK
+    assert str(person['id']) == "3fa85f64-5717-4562-b3fc-2c963f66afa6"
 
-    assert status == 200
-    assert len(response.body) == 50
+
+@pytest.mark.asyncio
+async def test_search_person_fast_api_invalid_name(make_get_request):
+    response = await make_get_request("/persons/",
+                                      params={"query": "Haryy"})
+    assert len(response.body) == 0

@@ -62,7 +62,8 @@ async def test_films_sort_by_inappropriate_field(make_get_request):
 
 @pytest.mark.asyncio
 async def test_films_pagination(make_get_request):
-    response = await make_get_request(endpoint="/films/", params={"page_size": 15})
+    response = await make_get_request(endpoint="/films/",
+                                      params={"page_size": 15})
     assert response.status == HTTPStatus.OK
     assert len(response.body) == 15
 
@@ -86,10 +87,12 @@ async def test_films_redis(redis_client):
         "sort": None,
         "genre": None,
         "model_name": "films",
+        "query": None,
     }
     key = (
         f'api/v1/{params["model_name"]}/?page_size={params["page_size"]}'
         f'&page={params["page"]}&sort={params["sort"]}&genre={params["genre"]}'
+        f'&query={params["query"]}'
     )
     data = await redis_client.lrange(key, 0, -1)
     assert data

@@ -37,7 +37,8 @@ async def test_genres_fast_api(make_get_request):
     ],
 )
 @pytest.mark.asyncio
-async def test_genres_pagination(make_get_request, page, page_size, expected_count):
+async def test_genres_pagination(make_get_request, page, page_size,
+                                 expected_count):
     response = await make_get_request(
         "/genres/", params={"page": page, "page_size": page_size}
     )
@@ -69,10 +70,12 @@ async def test_genres_redis(redis_client):
         "sort": None,
         "genre": None,
         "model_name": "genres",
+        "query": None,
     }
     key = (
         f'api/v1/{params["model_name"]}/?page_size={params["page_size"]}'
         f'&page={params["page"]}&sort={params["sort"]}&genre={params["genre"]}'
+        f'&query={params["query"]}'
     )
     data = await redis_client.lrange(key, 0, -1)
     assert data

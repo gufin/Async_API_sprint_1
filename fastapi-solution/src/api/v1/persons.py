@@ -9,37 +9,12 @@ from services.person import BaseService, get_person_service
 router = APIRouter()
 
 
-@router.get('/',
-            response_model=list[PersonListAPI],
-            summary=constants.PERSON_LIST_SUMMARY,
-            description=constants.PERSON_LIST_DESCRIPTION
-            )
-async def person_list(
-        request: Request,
-        page_size: int = Query(10, description=constants.PAGE_SIZE_DESCRIPTION,
-                               ge=1),
-        page: int = Query(1, description=constants.PAGE_DESCRIPTION, ge=1),
-        sort: str = Query('', description=constants.SORT_DESCRIPTION),
-        genre: str = Query(None,
-                           description=constants.GENRE_FILTER_DESCRIPTION),
-        get_person_service: BaseService = Depends(get_person_service)
-) -> list[PersonListAPI]:
-    persons = await get_person_service.get_list(page_size=page_size,
-                                                page=page,
-                                                sort=sort,
-                                                genre=genre,
-                                                url=request.url._url,
-                                                query=None,)
-    return [PersonListAPI.parse_obj(person.dict(by_alias=True)) for person in
-            persons]
-
-
 @router.get('/search',
             response_model=list[PersonListAPI],
             summary=constants.PERSON_SEARCH_LIST_SUMMARY,
             description=constants.PERSON_SEARCH_LIST_DESCRIPTION
             )
-async def person_list(
+async def person_list_search(
         request: Request,
         page_size: int = Query(10, description=constants.PAGE_SIZE_DESCRIPTION,
                                ge=1),
@@ -57,6 +32,33 @@ async def person_list(
                                                 genre=genre,
                                                 query=query,
                                                 url=request.url._url, )
+    return [PersonListAPI.parse_obj(person.dict(by_alias=True)) for person in
+            persons]
+
+
+@router.get('/',
+            response_model=list[PersonListAPI],
+            summary=constants.PERSON_LIST_SUMMARY,
+            description=constants.PERSON_LIST_DESCRIPTION
+            )
+async def person_list(
+        request: Request,
+        page_size: int = Query(10, description=constants.PAGE_SIZE_DESCRIPTION,
+                               ge=1),
+        page: int = Query(1, description=constants.PAGE_DESCRIPTION, ge=1),
+        sort: str = Query('', description=constants.SORT_DESCRIPTION),
+        genre: str = Query(None,
+                           description=constants.GENRE_FILTER_DESCRIPTION),
+        query: str = Query(None,
+                           description=constants.PERSON_SEARCH_DESCRIPTION),
+        get_person_service: BaseService = Depends(get_person_service)
+) -> list[PersonListAPI]:
+    persons = await get_person_service.get_list(page_size=page_size,
+                                                page=page,
+                                                sort=sort,
+                                                genre=genre,
+                                                url=request.url._url,
+                                                query=query, )
     return [PersonListAPI.parse_obj(person.dict(by_alias=True)) for person in
             persons]
 
