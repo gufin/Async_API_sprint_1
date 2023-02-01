@@ -1,0 +1,97 @@
+services:
+
+  db:
+    image: postgres:14-alpine
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - ./.env
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -q -d ${POSTGRES_DB} -U ${POSTGRES_USER}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    expose:
+      - "5432"
+
+  backend:
+    image: misha1224/movies_admin:latest
+    restart: always
+    expose:
+      - "8000"
+    volumes:
+      - static_value:/backend/static/
+      - media_value:/backend/media/
+    env_file:
+      - ./.env
+    depends_on:
+      db:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:1.23.1-alpine
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/configs:/etc/nginx/conf.d:ro
+      - static_value:/var/html/static/
+      - media_value:/var/html/media/
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+  elasticsearch:
+    image: elasticsearch:7.7.0
+    environment:
+      discovery.type: single-node
+      ES_JAVA_OPTS: "-Xmx512m -Xms512m"
+    depends_on:
+      - backend
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://elasticsearch:9200" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - elasticsearch_value:/usr/share/elasticsearch/data
+    restart: always
+    ports:
+      - "9200:9200"
+
+  etl:
+    image: misha1224/etl:latest
+    env_file:
+      - ./.env
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    volumes:
+      - etl_value:/opt/etl/results
+    entrypoint: [ "bash", "./docker-entrypoint.sh" ]
+    restart: always
+  redis:
+    container_name: redis
+    image: redis:6-alpine
+    restart: always
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+#  fastapi:
+#    build: ../fastapi-solution/
+#    env_file:
+#      - ./.env
+#    depends_on:
+#      - elasticsearch
+#      - redis
+#      - db
+#    command: python main.py
+
+volumes:
+  static_value:
+  media_value:
+  elasticsearch_value:
+  etl_value:
+  postgres_data:
+  redis_data:

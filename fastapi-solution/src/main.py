@@ -1,5 +1,4 @@
 import aioredis
-import gunicorn as gunicorn
 import uvicorn
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
@@ -20,7 +19,8 @@ app = FastAPI(
 @app.on_event('startup')
 async def startup():
     redis.redis = await aioredis.create_redis_pool(
-        (app_settings.redis_host, app_settings.redis_port), minsize=10, maxsize=20)
+        (app_settings.redis_host, app_settings.redis_port), minsize=10,
+        maxsize=20)
     elastic.es = AsyncElasticsearch(
         hosts=[f'{app_settings.elastic_host}:{app_settings.elastic_port}'])
 

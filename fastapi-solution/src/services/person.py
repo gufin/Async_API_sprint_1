@@ -15,4 +15,5 @@ def get_person_service(
         redis: Redis = Depends(get_redis),
         elastic: AsyncElasticsearch = Depends(get_elastic),
 ) -> BaseService:
-    return BaseService(redis, elastic, 'persons', PersonFilms, PersonBase)
+    return BaseService(redis, elastic, 'persons', PersonFilms, 'full_name',
+                       PersonBase)

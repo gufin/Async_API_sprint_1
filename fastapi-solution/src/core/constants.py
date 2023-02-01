@@ -45,3 +45,7 @@ class FilmsSortingFields(str, Enum):
     imdb_rating_desc = 'imdb_rating:desc'
     age_limit_asc = 'age_limit'
     age_limit_desc = 'age_limit:desc'
+
+class GenreSortingFields(str, Enum):
+    name_asc = 'name:asc'
+    name_desc = 'name:desc'
