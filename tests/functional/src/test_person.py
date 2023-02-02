@@ -39,8 +39,7 @@ async def test_persons_fast_api(make_get_request):
     ],
 )
 @pytest.mark.asyncio
-async def test_persons_pagination(make_get_request, page, page_size,
-                                  expected_count):
+async def test_persons_pagination(make_get_request, page, page_size, expected_count):
     response = await make_get_request(
         "/persons/", params={"page": page, "page_size": page_size}
     )

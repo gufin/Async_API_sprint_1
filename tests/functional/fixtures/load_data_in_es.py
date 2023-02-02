@@ -5,9 +5,7 @@ from testdata.es_data import film_work_data, genres_data, persons_data
 from testdata.es_mapping import GENRES_INDEX, MOVIES_INDEX, PERSONS_INDEX
 
 
-async def write_data_to_elastic(
-    es_client: AsyncElasticsearch, index: dict, data: dict
-):
+async def write_data_to_elastic(es_client: AsyncElasticsearch, index: dict, data: dict):
     index_name = index["index"]
     if not await es_client.indices.exists(index=index_name):
         await es_client.indices.create(index_name, index["body"])
