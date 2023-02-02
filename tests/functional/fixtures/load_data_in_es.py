@@ -1,6 +1,5 @@
 import pytest_asyncio
 from elasticsearch import AsyncElasticsearch
-
 from testdata.es_data import film_work_data, genres_data, persons_data
 from testdata.es_mapping import GENRES_INDEX, MOVIES_INDEX, PERSONS_INDEX
 
