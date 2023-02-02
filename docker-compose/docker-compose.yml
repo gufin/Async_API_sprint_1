@@ -82,7 +82,6 @@ services:
       - elasticsearch
       - redis
       - db
-    command: python main.py
 
 volumes:
   static_value:

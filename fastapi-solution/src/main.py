@@ -6,8 +6,7 @@ from db import elastic, redis
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
-from fastapi_cache import FastAPICache
-from fastapi_cache.backends.redis import RedisBackend
+
 
 app = FastAPI(
     title=app_settings.project_name,
@@ -22,7 +21,6 @@ async def startup():
     redis.redis = aioredis.from_url(
         app_settings.redis_url, encoding="utf8", decode_responses=True
     )
-    FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
     elastic.es = AsyncElasticsearch(
         hosts=[f"{app_settings.elastic_host}:{app_settings.elastic_port}"]
     )
