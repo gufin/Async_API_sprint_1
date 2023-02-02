@@ -1,7 +1,6 @@
 from aioredis import Redis
-from elasticsearch import AsyncElasticsearch, NotFoundError
-
 from core.config import app_settings
+from elasticsearch import AsyncElasticsearch, NotFoundError
 
 
 class RedisWorker:
@@ -19,13 +18,21 @@ class RedisWorker:
 
     def get_list(self, func):
         async def wrapper(
-            cls, page_size: int, page: int, sort: str, genre: str, query: str, url: str
+            cls,
+            page_size: int,
+            page: int,
+            sort: str,
+            genre: str,
+            query: str,
+            url: str,
         ):
             if key := self._generate_redis_key(
                 page_size, page, sort, genre, url, query
             ):
                 data = await cls.redis.lrange(key, 0, -1)
-                service_objects = [cls.list_model.parse_raw(item) for item in data]
+                service_objects = [
+                    cls.list_model.parse_raw(item) for item in data
+                ]
                 if service_objects:
                     return service_objects[::-1]
                 service_objects = await func(
@@ -33,7 +40,14 @@ class RedisWorker:
                 )
                 if len(service_objects) > 0:
                     await self._put_list_to_cache(
-                        cls, service_objects, page_size, page, sort, genre, url, query
+                        cls,
+                        service_objects,
+                        page_size,
+                        page,
+                        sort,
+                        genre,
+                        url,
+                        query,
                     )
                 return service_objects
 
@@ -68,7 +82,9 @@ class RedisWorker:
         url: str,
         query: str,
     ):
-        if key := self._generate_redis_key(page_size, page, sort, genre, url, query):
+        if key := self._generate_redis_key(
+            page_size, page, sort, genre, url, query
+        ):
             print(key)
             data = [item.json(by_alias=True) for item in service_objects]
             await cls.redis.lpush(
@@ -113,7 +129,9 @@ class BaseService:
         body = None
         if genre:
             body = {
-                "query": {"query_string": {"default_field": "genre", "query": genre}}
+                "query": {
+                    "query_string": {"default_field": "genre", "query": genre}
+                }
             }
         if query:
             body = {
@@ -140,12 +158,15 @@ class BaseService:
         except NotFoundError:
             return None
         return [
-            self.list_model.parse_obj(doc["_source"]) for doc in docs["hits"]["hits"]
+            self.list_model.parse_obj(doc["_source"])
+            for doc in docs["hits"]["hits"]
         ]
 
     @redis_worker.get_by_id
     async def get_by_id(self, service_object_id: str):
-        service_object = await self._get_service_object_from_elastic(service_object_id)
+        service_object = await self._get_service_object_from_elastic(
+            service_object_id
+        )
         return service_object or None
 
     async def _get_service_object_from_elastic(self, service_object_id: str):

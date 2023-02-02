@@ -1,10 +1,9 @@
 from http import HTTPStatus
 
-from fastapi import APIRouter, Depends, HTTPException
-
 import core.constants as constants
 from api.v1.models import GenreAPI
 from api.v1.utils import common_parameters
+from fastapi import APIRouter, Depends, HTTPException
 from services.genre import BaseService, get_genre_service
 
 router = APIRouter()

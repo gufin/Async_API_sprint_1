@@ -1,10 +1,9 @@
 from http import HTTPStatus
 
-from fastapi import APIRouter, Depends, HTTPException
-
 import core.constants as constants
 from api.v1.models import FilmAPI, FilmList
 from api.v1.utils import common_parameters
+from fastapi import APIRouter, Depends, HTTPException
 from services.film import BaseService, get_film_service
 
 router = APIRouter()

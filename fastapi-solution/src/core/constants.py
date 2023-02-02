@@ -9,16 +9,24 @@ FILM_ID_DESCRIPTION = (
 FILM_NOT_FOUND = "film not found"
 FILM_LIST_SUMMARY = "Shows a list of movies"
 FILM_LIST_DESCRIPTION = "Shows a list of movies"
-FILM_SEARCH_LIST_DESCRIPTION = "Shows a list of movies matching the " "search criteria"
-FILM_SEARCH_LIST_SUMMARY = "Shows a list of movies matching the search criteria"
+FILM_SEARCH_LIST_DESCRIPTION = (
+    "Shows a list of movies matching the " "search criteria"
+)
+FILM_SEARCH_LIST_SUMMARY = (
+    "Shows a list of movies matching the search criteria"
+)
 FILM_SEARCH_DESCRIPTION = "Part of the movie title (Example: dark sta )"
 GENRE_ID_SUMMARY = "Shows detailed information about the genre"
 GENRE_ID_DESCRIPTION = "Shows detailed information about the genre"
 GENRE_NOT_FOUND = "genre not found"
 GENRE_LIST_SUMMARY = "Shows a list of genres"
 GENRE_LIST_DESCRIPTION = "Shows a list of genres"
-GENRE_SEARCH_LIST_SUMMARY = "Shows a list of genres matching the search criteria"
-GENRE_SEARCH_LIST_DESCRIPTION = "Shows a list of genres matching the search criteria"
+GENRE_SEARCH_LIST_SUMMARY = (
+    "Shows a list of genres matching the search criteria"
+)
+GENRE_SEARCH_LIST_DESCRIPTION = (
+    "Shows a list of genres matching the search criteria"
+)
 GENRE_SEARCH_DESCRIPTION = "Part of the genre title (Example: horr )"
 PERSON_ID_SUMMARY = "Shows detailed information about the person"
 PERSON_ID_DESCRIPTION = (
@@ -28,8 +36,12 @@ PERSON_ID_DESCRIPTION = (
 PERSON_NOT_FOUND = "person not found"
 PERSON_LIST_SUMMARY = "Shows a list of persons"
 PERSON_LIST_DESCRIPTION = "Shows a list of persons"
-PERSON_SEARCH_LIST_SUMMARY = "Shows a list of persons matching the search criteria"
-PERSON_SEARCH_LIST_DESCRIPTION = "Shows a list of persons matching the search criteria"
+PERSON_SEARCH_LIST_SUMMARY = (
+    "Shows a list of persons matching the search criteria"
+)
+PERSON_SEARCH_LIST_DESCRIPTION = (
+    "Shows a list of persons matching the search criteria"
+)
 PERSON_SEARCH_DESCRIPTION = "Part of the person name (Example: Harrison )"
 PERSON_FILMS_SUMMARY = "Shows films in which the person took part"
 PERSON_FILMS_DESCRIPTION = "Shows films in which the person took part"

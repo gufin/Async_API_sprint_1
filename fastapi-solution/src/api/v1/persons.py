@@ -1,10 +1,9 @@
 from http import HTTPStatus
 
-from fastapi import APIRouter, Depends, HTTPException
-
 import core.constants as constants
 from api.v1.models import PersonAPI, PersonListAPI, PersonsFilm
 from api.v1.utils import common_parameters
+from fastapi import APIRouter, Depends, HTTPException
 from services.person import BaseService, get_person_service
 
 router = APIRouter()
@@ -28,7 +27,10 @@ async def person_list_search(
         query=commons["query"],
         url=commons["request"].url._url,
     )
-    return [PersonListAPI.parse_obj(person.dict(by_alias=True)) for person in persons]
+    return [
+        PersonListAPI.parse_obj(person.dict(by_alias=True))
+        for person in persons
+    ]
 
 
 @router.get(
@@ -49,7 +51,10 @@ async def person_list(
         query=commons["query"],
         url=commons["request"].url._url,
     )
-    return [PersonListAPI.parse_obj(person.dict(by_alias=True)) for person in persons]
+    return [
+        PersonListAPI.parse_obj(person.dict(by_alias=True))
+        for person in persons
+    ]
 
 
 @router.get(
@@ -101,5 +106,8 @@ async def person_details(
             if film not in film_ids:
                 film_ids.append(film.uuid)
     return PersonAPI(
-        id=person.uuid, full_name=person.full_name, role=person_roles, film_ids=film_ids
+        id=person.uuid,
+        full_name=person.full_name,
+        role=person_roles,
+        film_ids=film_ids,
     )

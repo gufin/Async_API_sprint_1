@@ -41,15 +41,30 @@ high_rating = [
         "actors_names": ["Jonh", "Kavic"],
         "writers_names": ["Mick", "Potter"],
         "directors": [
-            {"id": "7fe82bc5-ce75-44e7-b6dc-b3e6abe62309", "full_name": "Dany"},
+            {
+                "id": "7fe82bc5-ce75-44e7-b6dc-b3e6abe62309",
+                "full_name": "Dany",
+            },
         ],
         "actors": [
-            {"id": "66de8179-783e-47a8-8053-effcfd7636de", "full_name": "Margarit"},
-            {"id": "fb40ac45-6929-4b61-a0d5-261e0dff328b", "full_name": "Katrin"},
+            {
+                "id": "66de8179-783e-47a8-8053-effcfd7636de",
+                "full_name": "Margarit",
+            },
+            {
+                "id": "fb40ac45-6929-4b61-a0d5-261e0dff328b",
+                "full_name": "Katrin",
+            },
         ],
         "writers": [
-            {"id": "b817767c-f4c4-4042-b0a4-7ce207223349", "full_name": "Jonh"},
-            {"id": "12dc90d2-3806-42ae-8bd7-44029b4c092d", "full_name": "Madikhan"},
+            {
+                "id": "b817767c-f4c4-4042-b0a4-7ce207223349",
+                "full_name": "Jonh",
+            },
+            {
+                "id": "12dc90d2-3806-42ae-8bd7-44029b4c092d",
+                "full_name": "Madikhan",
+            },
         ],
     }
 ]

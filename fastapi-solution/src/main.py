@@ -1,14 +1,13 @@
 import aioredis
 import uvicorn
+from api.v1 import films, genres, persons
+from core.config import app_settings
+from db import elastic, redis
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
-
-from api.v1 import films, genres, persons
-from core.config import app_settings
-from db import elastic, redis
 
 app = FastAPI(
     title=app_settings.project_name,

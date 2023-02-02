@@ -1,8 +1,7 @@
 from uuid import UUID
 
-from pydantic import BaseModel
-
 from models.models import GenreBase, PersonBase, UUIDMixin
+from pydantic import BaseModel
 
 
 class FilmAPI(UUIDMixin, BaseModel):
