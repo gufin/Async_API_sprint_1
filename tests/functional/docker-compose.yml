@@ -4,7 +4,7 @@ services:
     build: ../../fastapi-solution/
     image: fastapi-image
     env_file:
-      - ./.env
+      - .env
     ports:
       - "8001:8001"
     depends_on:
@@ -21,13 +21,13 @@ services:
     image: redis:latest
     ports:
       - "6379:6379"
-  tests:
-    build: .
-    env_file:
-      - ./.env
-    entrypoint: >
-      sh -c "python3 utils/wait_for_es.py
-      && python3 utils/wait_for_redis.py
-      && pytest  src"
-    depends_on:
-      - fastapi
+#  tests:
+#    build: .
+#    env_file:
+#      - .env
+#    entrypoint: >
+#      sh -c "python3 utils/wait_for_es.py
+#      && python3 utils/wait_for_redis.py
+#      && pytest  src"
+#    depends_on:
+#      - fastapi

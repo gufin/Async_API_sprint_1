@@ -10,7 +10,7 @@ low_rating = [
         ],
         "title": "Low rating title",
         "description": "My test description",
-        "directors_names": ["Madikhan", 'Bob'],
+        "directors_names": ["Madikhan", "Bob"],
         "actors_names": ["Jonh", "Kavic"],
         "writers_names": ["Mick", "Potter"],
         "directors": [
@@ -29,7 +29,7 @@ low_rating = [
 
 high_rating = [
     {
-        "id": '4a6ab249-1a59-4207-86c8-7e72023d268e',
+        "id": "4a6ab249-1a59-4207-86c8-7e72023d268e",
         "imdb_rating": 9.3,
         "genres": [
             {"id": "d6673ce4-f6f5-4050-8723-86ed289d950b", "name": "Action"},
@@ -37,7 +37,7 @@ high_rating = [
         ],
         "title": "High rating title",
         "description": "My test description",
-        "directors_names": ["Madikhan", 'Bob'],
+        "directors_names": ["Madikhan", "Bob"],
         "actors_names": ["Jonh", "Kavic"],
         "writers_names": ["Mick", "Potter"],
         "directors": [
@@ -49,7 +49,7 @@ high_rating = [
         ],
         "writers": [
             {"id": "b817767c-f4c4-4042-b0a4-7ce207223349", "full_name": "Jonh"},
-            {"id": '12dc90d2-3806-42ae-8bd7-44029b4c092d', "full_name": "Madikhan"},
+            {"id": "12dc90d2-3806-42ae-8bd7-44029b4c092d", "full_name": "Madikhan"},
         ],
     }
 ]
@@ -65,7 +65,7 @@ film_work_data = (
             ],
             "title": f"film №{i}",
             "description": "My test description",
-            "directors_names": ["Madikhan", 'Bob'],
+            "directors_names": ["Madikhan", "Bob"],
             "actors_names": ["Jonh", "Kavic"],
             "writers_names": ["Mick", "Potter"],
             "directors": [

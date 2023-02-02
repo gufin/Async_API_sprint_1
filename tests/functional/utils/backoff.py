@@ -43,14 +43,18 @@ async def elastic_connect(*, host: str) -> AsyncElasticsearch:
 
 
 async def main():
-    print('Попытка установить соединение с ES и redis')
+    print("Попытка установить соединение с ES и redis")
 
-    es = await elastic_connect(host=f"{app_settings.elastic_host}:{app_settings.elastic_port}")
+    es = await elastic_connect(
+        host=f"{app_settings.elastic_host}:{app_settings.elastic_port}"
+    )
     await es.close()
 
-    redis = await redis_connect(host=app_settings.redis_host, port=app_settings.redis_port)
+    redis = await redis_connect(
+        host=app_settings.redis_host, port=app_settings.redis_port
+    )
     await redis.close()
-    print('Соединение установлено успешно')
+    print("Соединение установлено успешно")
 
 
 if __name__ == "__main__":

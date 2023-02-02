@@ -12,7 +12,7 @@ from services.utils import BaseService
 
 @lru_cache()
 def get_genre_service(
-        redis: Redis = Depends(get_redis),
-        elastic: AsyncElasticsearch = Depends(get_elastic),
+    redis: Redis = Depends(get_redis),
+    elastic: AsyncElasticsearch = Depends(get_elastic),
 ) -> BaseService:
-    return BaseService(redis, elastic, 'genres', GenreBase, 'name')
+    return BaseService(redis, elastic, "genres", GenreBase, "name")

@@ -22,7 +22,7 @@ pytest_plugins = [
 ]
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 async def session():
     session = aiohttp.ClientSession()
     yield session
