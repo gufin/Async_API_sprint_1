@@ -33,6 +33,11 @@ full_run:
 	#Ожидаем загрузки документов в Elasticsearch
 	sleep 5
 
+	#Запуск сервисов auth
+	docker-compose up -d auth_db auth_redis auth_service
+
+    docker-compose exec auth_service flask db upgrade
+
     #Запуск FastAPI сервиса
 	docker-compose up --build -d fastapi
 
