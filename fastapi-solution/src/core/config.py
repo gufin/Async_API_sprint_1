@@ -19,6 +19,10 @@ class AppSettings(BaseSettings):
 
     base_dir: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+    auth_service: str = os.getenv("AUTH_SERVICE",
+                                  "http://auth_service:5500/api/v1/auth/history")
+    test_mode: bool = os.getenv("TEST_MODE", False)
+
     cache_expire_in_seconds: int = 300
 
     class Config:
