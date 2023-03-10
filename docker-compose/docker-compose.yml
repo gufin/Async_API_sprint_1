@@ -82,6 +82,35 @@ services:
       - elasticsearch
       - redis
       - db
+  auth_db:
+    image: postgres:14-alpine
+    restart: always
+    volumes:
+      - auth_pgdata:/var/lib/postgresql/data
+    env_file:
+      - ./.auth_env
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -q -d ${POSTGRES_DB} -U ${POSTGRES_USER}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    expose:
+      - "5432"
+  auth_redis:
+    image: redis:7.0-alpine
+    volumes:
+      - auth_redis_data:/data
+    expose:
+      - "6379"
+  auth_service:
+    image: ivanddoker/auth_service
+    expose:
+      - "5500"
+    depends_on:
+      - auth_db
+      - auth_redis
+    env_file:
+      - ./.auth_env
 
 volumes:
   static_value:
@@ -90,3 +119,5 @@ volumes:
   etl_value:
   postgres_data:
   redis_data:
+  auth_pgdata:
+  auth_redis_data:
